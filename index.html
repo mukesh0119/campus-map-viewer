@@ -1,58 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Stag Hill 3D Campus Map</title>
-  <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; width: 100vw; height: 100vh; }
-  </style>
-</head>
-<body>
-  <script type="module">
-    import * as THREE from './three.module.js';
-    import { GLTFLoader } from './GLTFLoader.js';
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    const loader = new GLTFLoader();
-    loader.load('campus_map.glb', function (gltf) {
-      const model = gltf.scene;
-      scene.add(model);
-
-      const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2();
-
-      renderer.domElement.addEventListener('click', function (event) {
-        const rect = renderer.domElement.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        raycaster.setFromCamera(mouse, camera);
-
-        const intersects = raycaster.intersectObjects(model.children, true);
-        if (intersects.length > 0) {
-          const clickedObject = intersects[0].object;
-          const buildingID = clickedObject.name || "Unnamed";
-          // Send the message back to Power Apps
-          window.parent.postMessage({ buildingID: buildingID }, "*");
-        }
-      });
-    });
-
-    camera.position.set(0, 2, 5);
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(0, 10, 10).normalize();
-    scene.add(light);
-
-    function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera);
-    }
-    animate();
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Campus Map</title>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        background-color: #111;
+      }
+      model-viewer {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <model-viewer
+      src="campus_map.glb"
+      alt="3D Campus Map"
+      auto-rotate
+      camera-controls
+      shadow-intensity="1"
+      exposure="1"
+      environment-image="neutral"
+    ></model-viewer>
+  </body>
 </html>
