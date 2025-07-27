@@ -1,0 +1,1 @@
+// GLTFLoader placeholder - insert actual loader from three.js/examples/jsm

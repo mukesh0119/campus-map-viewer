@@ -1,0 +1,57 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stag Hill 3D Campus Map</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script type="module">
+    import * as THREE from './three.module.js';
+    import { GLTFLoader } from './GLTFLoader.js';
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    const loader = new GLTFLoader();
+    loader.load('campus_map.glb', function (gltf) {
+      const model = gltf.scene;
+      scene.add(model);
+
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+
+      window.addEventListener('click', (event) => {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        const intersects = raycaster.intersectObjects(model.children, true);
+        if (intersects.length > 0) {
+          const clickedObject = intersects[0].object;
+          const buildingID = clickedObject.name || "Unnamed";
+          window.parent.postMessage({ buildingID }, "*");
+        }
+      });
+    });
+
+    camera.position.set(0, 2, 5);
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(0, 10, 10).normalize();
+    scene.add(light);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
